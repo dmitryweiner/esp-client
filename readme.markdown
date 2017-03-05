@@ -1,3 +1,9 @@
+# Main features
+* Solar power + accumulator
+* Saving power between sending data
+  ESP.deepSleep(60000000, WAKE_RF_DEFAULT);
+* Setup WiFi AP and MQTT brocker url at the begining
+
 # Connecting sensor
 
 How to connect BMP280 sensor to ESP8266 (NodeMCU in my case).

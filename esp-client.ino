@@ -26,7 +26,7 @@ BME280_I2C bme(0x76);
 
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
 
-Adafruit_MQTT_Publish sensor = Adafruit_MQTT_Publish(&mqtt, "sensors/temperature");
+Adafruit_MQTT_Publish sensor = Adafruit_MQTT_Publish(&mqtt, "sensors/bme280");
 
 
 void setup() {
@@ -58,15 +58,22 @@ void setup() {
 
 void loop() {
 
+  char temperature_buffer[10];
+  char humidity_buffer[10];
+  char pressure_buffer[20];
+  char buffer[100];
+
   bme.readSensor();
 
-  Serial.print("P="); Serial.print(bme.getPressure_MB()); Serial.print("mB\t\t");    // Pressure in millibars
-  Serial.print("H="); Serial.print(bme.getHumidity()); Serial.print("%\t\t");
-  Serial.print("T="); Serial.print(bme.getTemperature_C()); Serial.print(" *C\n");
-
   MQTT_connect();
-  Serial.print("Sending sensor value ");
-  if (! sensor.publish(bme.getTemperature_C())) {
+
+  dtostrf(bme.getTemperature_C(), 5, 2, temperature_buffer);
+  dtostrf(bme.getHumidity(), 5, 2, humidity_buffer);
+  dtostrf(bme.getPressure_MB(), 8, 2, pressure_buffer);
+  
+  sprintf(buffer, "{\"temperature\": %s, \"humidity\": %s, \"pressure\": %s}", temperature_buffer, humidity_buffer, pressure_buffer);
+  Serial.print("Sending sensor value");
+  if (! sensor.publish(buffer)) {
     Serial.println("Failed");
   } else {
     Serial.println("OK!");
