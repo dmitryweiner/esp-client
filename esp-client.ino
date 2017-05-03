@@ -23,6 +23,7 @@
 #define MAX_TRIES        20
 #define SENSOR_NAME      "bme280"
 #define SENDING_DELAY    2000
+#define USE_DEFAULTS     0
 
 
 WiFiClient client;
@@ -183,13 +184,48 @@ void readSettingsFromEEPROM() {
   int i;
   byte eeprom_data_tmp[sizeof(eeprom_data)];
 
-  Serial.println("Reading config from EEPROM");
+  if (USE_DEFAULTS) {
+    Serial.println("Using defaults");
+    strncpy(eeprom_data.wlanSsid, WLAN_SSID, sizeof(WLAN_SSID));
+    strncpy(eeprom_data.wlanPassword, WLAN_PASS, sizeof(WLAN_PASS));
+    strncpy(eeprom_data.mqttServer, MQTT_SERVER, sizeof(MQTT_SERVER));
+    eeprom_data.mqttPort = MQTT_SERVERPORT;
+    strncpy(eeprom_data.mqttUsername, MQTT_USERNAME, sizeof(MQTT_USERNAME));
+    strncpy(eeprom_data.mqttPassword, MQTT_PASSWORD, sizeof(MQTT_PASSWORD));
+    strncpy(eeprom_data.sensorName, SENSOR_NAME, sizeof(SENSOR_NAME));
+  } else {
+    Serial.println("Reading config from EEPROM");
 
-  EEPROM.begin(sizeof(eeprom_data));
-  for (int i = 0; i < sizeof(eeprom_data); ++i) {
-    eeprom_data_tmp[i] = EEPROM.read(i);
+    EEPROM.begin(sizeof(eeprom_data));
+    for (int i = 0; i < sizeof(eeprom_data); ++i) {
+      eeprom_data_tmp[i] = EEPROM.read(i);
+    }
+    memcpy(&eeprom_data, eeprom_data_tmp,  sizeof(eeprom_data));
+
+    //setting default values
+    if (String(eeprom_data.wlanSsid).equals("")) {
+      strncpy(eeprom_data.wlanSsid, WLAN_SSID, sizeof(WLAN_SSID));
+    }
+    if (String(eeprom_data.wlanPassword).equals("")) {
+      strncpy(eeprom_data.wlanPassword, WLAN_PASS, sizeof(WLAN_PASS));
+    }
+    if (String(eeprom_data.mqttServer).equals("")) {
+      strncpy(eeprom_data.mqttServer, MQTT_SERVER, sizeof(MQTT_SERVER));
+    }
+    if (eeprom_data.mqttPort == 0) {
+      eeprom_data.mqttPort = MQTT_SERVERPORT;
+    }
+    if (String(eeprom_data.mqttUsername).equals("")) {
+      strncpy(eeprom_data.mqttUsername, MQTT_USERNAME, sizeof(MQTT_USERNAME));
+    }
+    if (String(eeprom_data.mqttPassword).equals("")) {
+      strncpy(eeprom_data.mqttPassword, MQTT_PASSWORD, sizeof(MQTT_PASSWORD));
+    }
+    if (String(eeprom_data.sensorName).equals("")) {
+      strncpy(eeprom_data.sensorName, SENSOR_NAME, sizeof(SENSOR_NAME));
+    }
+    Serial.println("Finished reading config from EEPROM");
   }
-  memcpy(&eeprom_data, eeprom_data_tmp,  sizeof(eeprom_data));
   Serial.println(eeprom_data.wlanSsid);
   Serial.println(eeprom_data.wlanPassword);
   Serial.println(eeprom_data.mqttServer);
@@ -197,31 +233,6 @@ void readSettingsFromEEPROM() {
   Serial.println(eeprom_data.mqttUsername);
   Serial.println(eeprom_data.mqttPassword);
   Serial.println(eeprom_data.sensorName);
-
-  //setting default values
-  if (String(eeprom_data.wlanSsid).equals("")) {
-    strncpy(eeprom_data.wlanSsid, WLAN_SSID, sizeof(WLAN_SSID));
-  }
-  if (String(eeprom_data.wlanPassword).equals("")) {
-    strncpy(eeprom_data.wlanPassword, WLAN_PASS, sizeof(WLAN_PASS));
-  }
-  if (String(eeprom_data.mqttServer).equals("")) {
-    strncpy(eeprom_data.mqttServer, MQTT_SERVER, sizeof(MQTT_SERVER));
-  }
-  if (eeprom_data.mqttPort == 0) {
-    eeprom_data.mqttPort = MQTT_SERVERPORT;
-  }
-  if (String(eeprom_data.mqttUsername).equals("")) {
-    strncpy(eeprom_data.mqttUsername, MQTT_USERNAME, sizeof(MQTT_USERNAME));
-  }
-  if (String(eeprom_data.mqttPassword).equals("")) {
-    strncpy(eeprom_data.mqttPassword, MQTT_PASSWORD, sizeof(MQTT_PASSWORD));
-  }
-  if (String(eeprom_data.sensorName).equals("")) {
-    strncpy(eeprom_data.sensorName, SENSOR_NAME, sizeof(SENSOR_NAME));
-  }
-  Serial.println("Finished reading config from EEPROM");
-
 }
 
 void writeSettingsToEEPROM(
