@@ -19,14 +19,14 @@ It worked pretty good.
 # Installing MQTT
 
 https://www.raspberrypi.org/forums/viewtopic.php?f=29&t=95952
-
+~~~
 $ wget http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key
 $ sudo apt-key add mosquitto-repo.gpg.key
 $ cd /etc/apt/sources.list.d/
 $ sudo wget http://repo.mosquitto.org/debian/mosquitto-wheezy.list
 $ sudo apt-get update
 $ sudo apt-get install mosquitto
-
+~~~
 Don't forget to setup security:
 https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-the-mosquitto-mqtt-messaging-broker-on-ubuntu-16-04
 
