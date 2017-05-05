@@ -127,10 +127,14 @@ void setup() {
     Serial.println("OK!");
   }
 
+  Serial.print("Going to sleep for ");
+  Serial.println(SLEEP_TIME);
   ESP.deepSleep(SLEEP_TIME * 1000000);
 }
 
 void loop() {
+  Serial.println("Loop");
+  delay(500);
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
