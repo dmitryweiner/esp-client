@@ -22,8 +22,8 @@
 #define MQTT_PASSWORD    "123456"
 #define MAX_TRIES        20
 #define SENSOR_NAME      "bme280"
-#define SENDING_DELAY    2000
 #define USE_DEFAULTS     0
+#define SLEEP_TIME       300
 
 
 WiFiClient client;
@@ -48,6 +48,11 @@ Adafruit_MQTT_Publish * sensor;
 
 void setup() {
   int currentTry = 1;
+  char temperature_buffer[10];
+  char humidity_buffer[10];
+  char pressure_buffer[20];
+  char buffer[150];
+
   Serial.begin(115200);
   Wire.begin(2, 0);
 
@@ -104,20 +109,9 @@ void setup() {
       }
     }
   }
-  Serial.println();
   Serial.println("WiFi connected");
 
-}
-
-void loop() {
-
-  char temperature_buffer[10];
-  char humidity_buffer[10];
-  char pressure_buffer[20];
-  char buffer[150];
-
   bme.readSensor();
-
   MQTT_connect();
 
   dtostrf(bme.getTemperature_C(), 5, 2, temperature_buffer);
@@ -133,7 +127,10 @@ void loop() {
     Serial.println("OK!");
   }
 
-  delay(SENDING_DELAY);
+  ESP.deepSleep(SLEEP_TIME * 1000000);
+}
+
+void loop() {
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
