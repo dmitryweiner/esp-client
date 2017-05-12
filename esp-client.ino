@@ -76,6 +76,14 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(eeprom_data.wlanSsid);
 
+  // reset WiFi module after deep sleep (many strange unclear commands)
+  WiFi.persistent(false);
+  WiFi.forceSleepWake();
+  delay(100);
+  WiFi.mode(WIFI_OFF);
+  delay(100);
+  WiFi.mode(WIFI_STA);
+  WiFi.setOutputPower(0);
   WiFi.begin(eeprom_data.wlanSsid, eeprom_data.wlanPassword);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -128,8 +136,10 @@ void setup() {
   }
 
   Serial.print("Going to sleep for ");
-  Serial.println(SLEEP_TIME);
-  ESP.deepSleep(SLEEP_TIME * 1000000);
+  Serial.print(SLEEP_TIME);
+  Serial.println(" seconds.");
+  WiFi.forceSleepBegin();
+  ESP.deepSleep(SLEEP_TIME * 1000000, WAKE_RF_DEFAULT);
 }
 
 void loop() {
